@@ -1,5 +1,4 @@
 #lang racket
-(require racket/list)
 ;; Please, do not remove this line and do not change the function names,
 ;; otherwise the grader will not work and your submission will get 0 points.
 (provide (all-defined-out))
