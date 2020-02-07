@@ -1,4 +1,5 @@
 #lang racket
+(require rackunit)
 ;; Please, do not remove this line and do not change the function names,
 ;; otherwise the grader will not work and your submission will get 0 points.
 (provide (all-defined-out))
@@ -13,7 +14,7 @@
         (- 17 5)
         12))
 
-(define ex3 (lambda (x y) (<= (+ (+ x 12) (* 4 13)) (- (+ x 11) y))))
+(define (ex3 x y) (<= (+ (+ x 12) (* 4 13)) (- (+ x 11) y)))
 
 ;; Constructs a tree from two trees and a value
 (define (tree left value right) (list left value right))
@@ -33,14 +34,65 @@
 
 ;; Function that inserts a value in a BST
 (define (bst-insert self value) (cond 
-    [(equal? self null) (tree null value null)]
-    [(equal? value (tree-value self)) (tree-set-value self value)]
-    [(< value (tree-value self)) (tree-set-left self (tree-leaf value))]
-    [else (tree-set-right self (tree-leaf value))]))
+    [(null? self)                       (tree null value null)]
+    [(equal? value (tree-value self))   (tree-set-value self value)]
+    [(< value (tree-value self))        (tree-set-left self (bst-insert (tree-left self) value))]
+    [else                               (tree-set-right self (bst-insert (tree-right self) value))]))
 
+
+
+(define (non-symbols xs) (
+    foldl (lambda (x res) (cond [(symbol? x) (+ res 0)] [else (+ res 1)])) 0 xs
+))
 
 ;; lambda
-(define (lambda? node) 'todo)
+(define (lambda? node) 
+    (and 
+        (list? node)                            ; is the node a list
+        (>= (length node) 3)                    ; does is have  at least three elements
+        (equal? (first node) 'lambda)           ; is the first word lambda
+        (list? (second node))
+        (equal? (non-symbols (second node)) 0)  ; are the arguments symbols
+        (list? (second node))
+        (or                                     ; return can either be (non empty list, number, symbol)
+            (symbol? (third node))
+            (and
+                (list? (third node))
+                (> (length (third node)) 0))
+                (number? (third node))
+            (number? (third node))
+        )
+
+    )
+) 
+
+;;; hits all the cases
+(check-true (lambda? (quote (lambda (x) x))))
+(check-true (lambda? (quote (lambda (x) (x)))))
+(check-false (lambda? (quote 3)))
+(check-false (lambda? (quote (lambda (3)))))
+(check-false (lambda? (quote (lambda (3) ()))))
+(check-true (lambda? (quote (lambda (x y z) 5))))
+(check-false (lambda? (quote (lambda (x 3 z) 5))))
+(check-false (lambda? (quote (lambda (x)))))
+(check-false (lambda? (quote (- 3 1))))
+
+(check-true (lambda? (quote (lambda (a b c) x y z))))
+(check-false (lambda? '(lambda (x) ())))
+(check-true (lambda? '(lambda () (+ 1 2))))
+(check-true (lambda? '(lambda (x) (+ 1 2))))
+(check-false (lambda? '(lambda ())))
+(check-false (lambda? '(define ())))
+(check-false (lambda? (quote 3)))
+(check-false (lambda? '(lambda x 3)))
+
+
+;;added the following:
+(check-false (lambda? '(lambda x 3)))
+(check-false (lambda? '(lambda 1 1)))
+(check-false (lambda? '(lambda 1 '())))
+
+
 (define (lambda-params node) 'todo)
 (define (lambda-body node) 'todo)
 
@@ -53,6 +105,3 @@
 (define (define? node) 'todo)
 (define (define-basic? node) 'todo)
 (define (define-func? node) 'todo)
-
-
-
