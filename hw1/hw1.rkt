@@ -65,43 +65,91 @@
 
     )
 ) 
+; (check-true (lambda? (quote (lambda (x) x))))
+; (check-true (lambda? (quote (lambda (x) (x)))))
+; (check-false (lambda? (quote 3)))
+; (check-false (lambda? (quote (lambda (3)))))
+; (check-false (lambda? (quote (lambda (3) ()))))
+; (check-true (lambda? (quote (lambda (x y z) 5))))
+; (check-false (lambda? (quote (lambda (x 3 z) 5))))
+; (check-false (lambda? (quote (lambda (x)))))
+; (check-false (lambda? (quote (- 3 1))))
 
-;;; hits all the cases
-(check-true (lambda? (quote (lambda (x) x))))
-(check-true (lambda? (quote (lambda (x) (x)))))
-(check-false (lambda? (quote 3)))
-(check-false (lambda? (quote (lambda (3)))))
-(check-false (lambda? (quote (lambda (3) ()))))
-(check-true (lambda? (quote (lambda (x y z) 5))))
-(check-false (lambda? (quote (lambda (x 3 z) 5))))
-(check-false (lambda? (quote (lambda (x)))))
-(check-false (lambda? (quote (- 3 1))))
-
-(check-true (lambda? (quote (lambda (a b c) x y z))))
-(check-false (lambda? '(lambda (x) ())))
-(check-true (lambda? '(lambda () (+ 1 2))))
-(check-true (lambda? '(lambda (x) (+ 1 2))))
-(check-false (lambda? '(lambda ())))
-(check-false (lambda? '(define ())))
-(check-false (lambda? (quote 3)))
-(check-false (lambda? '(lambda x 3)))
-
-
-;;added the following:
-(check-false (lambda? '(lambda x 3)))
-(check-false (lambda? '(lambda 1 1)))
-(check-false (lambda? '(lambda 1 '())))
+; (check-true (lambda? (quote (lambda (a b c) x y z))))
+; (check-false (lambda? '(lambda (x) ())))
+; (check-true (lambda? '(lambda () (+ 1 2))))
+; (check-true (lambda? '(lambda (x) (+ 1 2))))
+; (check-false (lambda? '(lambda ())))
+; (check-false (lambda? '(define ())))
+; (check-false (lambda? (quote 3)))
+; (check-false (lambda? '(lambda x 3)))
+; (check-false (lambda? '(lambda x 3)))
+; (check-false (lambda? '(lambda 1 1)))
+; (check-false (lambda? '(lambda 1 '())))
 
 
-(define (lambda-params node) 'todo)
-(define (lambda-body node) 'todo)
+(define (lambda-params node) (second node))
+
+; (lambda-params (quote (lambda (a b c) x y z)))
+; (check-equal? (list 'x) (lambda-params (quote (lambda (x) y))))
+
+(define (lambda-body node) (drop node 2))
 
 ;; apply
-(define (apply? l) 'todo)
-(define (apply-func node) 'todo)
-(define (apply-args node) 'todo)
+(define (apply? l) 
+    (and 
+        (list? l)
+        (> (length l) 0)
+        (not (equal? (first l) 'lambda))
+    ))
+
+
+(define (apply-func node) (first node))
+(define (apply-args node) (drop node 1))
 
 ;; define
-(define (define? node) 'todo)
-(define (define-basic? node) 'todo)
-(define (define-func? node) 'todo)
+(define (define-basic? node) 
+    (and
+        (list? node)
+        (>= (length node) 3)
+        (equal? (first node) 'define)
+        (symbol? (second node))
+    ))
+
+(define (define-func? node) (and
+        (list? node)
+        (>= (length node) 3)
+        (equal? (first node) 'define)
+        (list? (second node))
+        (equal? (non-symbols (second node)) 0)
+        (> (length (second node)) 0)
+    ))
+
+
+(define (define? node) 
+    (or
+        (define-basic? node)
+        (define-func? node)        
+    ))
+
+(check-true (define? (quote (define x 3))))
+(check-false (define? (quote (void))))
+(check-false (define? (quote (define))))
+(check-false (define? (quote (define (void)))))
+(check-false (define? (quote (define ()))))
+(check-false (define? (quote (define x))))
+(check-false (define? (quote (define -))))
+(check-false (define? (quote (define 3))))
+(check-false (define? (quote ())))
+(check-false (define? (quote 3)))
+(check-false (define? (quote x)))
+(check-false (define? (quote -)))
+(check-false (define? (quote (define car))))
+(check-false (define? (quote (define define))))
+
+(check-false (define? (quote (define 3 x))))
+(check-true (define? (quote (define (f x) (+ x 1)))))
+
+(check-true (define-func? (quote (define (x) 3))))
+(check-false (define-func? (quote (define (x)))))
+(check-false (define-func? (quote (define (3) 3))))
