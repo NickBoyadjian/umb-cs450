@@ -39,51 +39,73 @@
         [else (inner (rest l) (append res (list (first l)) (list v)))]))
   
   (cond 
-    [(equal? l (list)) l]
-    [(equal? (length l) 1) (append l (list v))]
+    [(<= (length l) 1) l]
     [else (inner l (list))])
 )
 
 ;; Exercise 3.a: Generic find
 ;; Solution has 7 lines.
-(define (find pred l) 
+(define (find pred l)
   (define (inner pred l index)
     (cond
-      [(empty? l) #f] ; list is empty, return false
-      [(pred index (first l)) (cons index (first l))] ; if it's found
+      [(empty? l) #f]
+      [(pred index (first l)) (cons index (first l))]
       [else (inner pred (rest l) (+ index 1))]
     ))
-    (inner pred l 0))
+  (inner pred l 0))
 
 ;; Exercise 3.b: Member using find
 ;; Solution has 3 lines.
 (define (member x l) 
   (cond
-    [(find (lambda (idx elem) (equal? elem x)))]
-    [else #f]
+    [(equal? (find (lambda (idx elem) (equal? elem x)) l) #f) #f]
+    [else #t]
   ))
 
-(find (lambda (idx elem) (equal? elem 30)) (list 10 20 30))
-
-;(member 20 (list 10 20 30))
 
 ;; Exercise 3.c: index-of using find
 ;; Solution has 4 lines.
-(define (index-of l x) 'todo)
+(define (index-of l x) (cond
+    [(member x l) (car (find (lambda (idx elem) (equal? elem x)) l))]
+    [else #f]
+  ))
 
 ;; Exercise 4: uncurry, tail-recursive
 ;; Solution has 8 lines.
-(define (uncurry f) 'todo)
+(define (uncurry f) 
+  (define (res f l) 
+    (cond
+      [(equal? l (list)) (f)]
+      [(equal? 1 (length l)) (f (first l))]
+      [else (res (f (first l)) (rest l) )]))
+  (lambda (l) (res f l)))
+
 
 ;; Exercise 5: Parse a quoted AST
 ;; Solution has 26 lines.
 (define (parse-ast node)
+  
+  (define (handle-list xs res) (
+    cond
+      [(not (list? xs)) (parse-ast xs)]
+      [(empty? xs) res]
+      [else (handle-list (rest xs) (append res (parse-ast (first xs))))]
+  ))
+
   (define (make-define-func node) 'todo)
+
   (define (make-define-basic node) 'todo)
-  (define (make-lambda node) 'todo)
+
+  (define (make-lambda node) (r:lambda 
+    (second node) 
+    (third node)))
+
   (define (make-apply node) 'todo)
-  (define (make-number node) 'todo)
-  (define (make-variable node) 'todo)
+
+  (define (make-number node) (r:number node))
+
+  (define (make-variable node) (r:variable node))
+
 
   (cond
     [(define-basic? node) (make-define-basic node)]

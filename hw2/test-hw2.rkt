@@ -31,6 +31,8 @@
 
 ; 2
 (check-equal? (list 1 0 2 0 3) (intersperse (list 1 2 3) 0))
+(check-equal? (list) (intersperse (list) 0))
+(check-equal? (list 1) (intersperse (list 1) 0))
 
 ; ; 3.a
 (check-equal? (cons 0 10) (find (lambda (idx elem) #t) (list 10 20 30)))
@@ -38,28 +40,29 @@
 
 ; ; 3.b
 (check-true (member 20 (list 10 20 30)))
-; (check-false (member 40 (list 10 20 30)))
+(check-false (member 40 (list 10 20 30)))
 
 ; ; 3.c
-; (check-equal? 1 (index-of (list 10 20 30) 20))
-; (check-equal? #f (index-of (list 10 20 30) 40))
+(check-equal? 1 (index-of (list 10 20 30) 20))
+(check-equal? #f (index-of (list 10 20 30) 40))
 
 ; ; 4
-; (define (f x y z w)
-;   (+ x y z w))
-; (define g (uncurry (curry f)))
-; (check-equal? 10 (g (list 1 2 3 4)))
+(define (f x y z w)
+  (+ x y z w))
+(define g (uncurry (curry f)))
+(check-equal? 10 (g (list 1 2 3 4)))
 
 ; ; 5
-; (check-equal? (parse-ast 'x) (r:variable 'x))
-; (check-equal? (parse-ast '10) (r:number 10))
-; (check-equal?
-;   (parse-ast '(lambda (x) x))
-;   (r:lambda (list (r:variable 'x)) (list (r:variable 'x))))
-; (check-equal?
-;   (parse-ast '(define (f y) (+ y 10)))
-;   (r:define
-;     (r:variable 'f)
-;     (r:lambda
-;       (list (r:variable 'y))
-;       (list (r:apply (r:variable '+) (list (r:variable 'y) (r:number 10)))))))
+(check-equal? (parse-ast 'x) (r:variable 'x))
+(check-equal? (parse-ast '10) (r:number 10))
+(check-equal?
+  (parse-ast '(lambda (x) x))
+  (r:lambda (list (r:variable 'x)) (list (r:variable 'x))))
+
+;(check-equal?
+;  (parse-ast '(define (f y) (+ y 10)))
+;  (r:define
+;    (r:variable 'f)
+;    (r:lambda
+;      (list (r:variable 'y))
+;      (list (r:apply (r:variable '+) (list (r:variable 'y) (r:number 10)))))))
