@@ -33,11 +33,11 @@
 (check-equal? (list 1 0 2 0 3) (intersperse (list 1 2 3) 0))
 
 ; ; 3.a
-; (check-equal? (cons 0 10) (find (lambda (idx elem) #t) (list 10 20 30)))
-; (check-equal? #f (find (lambda (idx elem) #f) (list 10 20 30)))
+(check-equal? (cons 0 10) (find (lambda (idx elem) #t) (list 10 20 30)))
+(check-equal? #f (find (lambda (idx elem) #f) (list 10 20 30)))
 
 ; ; 3.b
-; (check-true (member 20 (list 10 20 30)))
+(check-true (member 20 (list 10 20 30)))
 ; (check-false (member 40 (list 10 20 30)))
 
 ; ; 3.c

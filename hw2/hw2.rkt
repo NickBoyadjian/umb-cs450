@@ -39,18 +39,33 @@
         [else (inner (rest l) (append res (list (first l)) (list v)))]))
   
   (cond 
-    [(equal? (length l) 1) l]
+    [(equal? l (list)) l]
+    [(equal? (length l) 1) (append l (list v))]
     [else (inner l (list))])
 )
 
-
 ;; Exercise 3.a: Generic find
 ;; Solution has 7 lines.
-(define (find pred l) 'todo)
+(define (find pred l) 
+  (define (inner pred l index)
+    (cond
+      [(empty? l) #f] ; list is empty, return false
+      [(pred index (first l)) (cons index (first l))] ; if it's found
+      [else (inner pred (rest l) (+ index 1))]
+    ))
+    (inner pred l 0))
 
 ;; Exercise 3.b: Member using find
 ;; Solution has 3 lines.
-(define (member x l) 'todo)
+(define (member x l) 
+  (cond
+    [(find (lambda (idx elem) (equal? elem x)))]
+    [else #f]
+  ))
+
+(find (lambda (idx elem) (equal? elem 30)) (list 10 20 30))
+
+;(member 20 (list 10 20 30))
 
 ;; Exercise 3.c: index-of using find
 ;; Solution has 4 lines.
