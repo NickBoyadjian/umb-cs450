@@ -87,20 +87,33 @@
   
   (define (handle-list xs res) (
     cond
-      [(not (list? xs)) (parse-ast xs)]
+      [(not (list? xs)) (list (parse-ast xs))]
       [(empty? xs) res]
-      [else (handle-list (rest xs) (append res (parse-ast (first xs))))]
+      [else (handle-list (rest xs) (append res (list (parse-ast (first xs)))))]
   ))
 
-  (define (make-define-func node) 'todo)
+  (define (make-define-func node) (r:define
+    (parse-ast (first (second node)))
+    (r:lambda
+      (handle-list (rest (second node)) (list))
+      (handle-list (rest (rest node)) (list))
+    )
+  ))
 
-  (define (make-define-basic node) 'todo)
+  (define (make-define-basic node) (r:define
+    (parse-ast (second node))
+    (parse-ast (third node))
+  ))
 
   (define (make-lambda node) (r:lambda 
-    (second node) 
-    (third node)))
+    (handle-list (second node) (list))
+    (handle-list (rest (rest node)) (list))
+  ))
 
-  (define (make-apply node) 'todo)
+  (define (make-apply node) (r:apply
+    (parse-ast (first node))
+    (handle-list (rest node) (list))
+  ))
 
   (define (make-number node) (r:number node))
 
@@ -114,3 +127,5 @@
     [(real? node) (make-number node)]
     [(lambda? node) (make-lambda node)]
     [else (make-apply node)]))
+
+

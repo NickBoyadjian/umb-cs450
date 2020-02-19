@@ -59,10 +59,14 @@
   (parse-ast '(lambda (x) x))
   (r:lambda (list (r:variable 'x)) (list (r:variable 'x))))
 
-;(check-equal?
-;  (parse-ast '(define (f y) (+ y 10)))
-;  (r:define
-;    (r:variable 'f)
-;    (r:lambda
-;      (list (r:variable 'y))
-;      (list (r:apply (r:variable '+) (list (r:variable 'y) (r:number 10)))))))
+(check-equal?
+  (parse-ast '(lambda (x y) x y))
+  (r:lambda (list (r:variable 'x) (r:variable 'y)) (list (r:variable 'x) (r:variable 'y))))
+
+(check-equal?
+ (parse-ast '(define (f y) (+ y 10)))
+ (r:define
+   (r:variable 'f)
+   (r:lambda
+     (list (r:variable 'y))
+     (list (r:apply (r:variable '+) (list (r:variable 'y) (r:number 10)))))))
