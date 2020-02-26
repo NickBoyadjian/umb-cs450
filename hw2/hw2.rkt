@@ -128,4 +128,4 @@
     [(lambda? node) (make-lambda node)]
     [else (make-apply node)]))
 
-
+(map (lambda (x) (parse-ast x)) (list 'a 'b 'c))
