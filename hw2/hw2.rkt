@@ -32,16 +32,26 @@
 
 ;; Exercise 2: Interperse
 ;; Solution has 11 lines.
-(define (intersperse l v)
-  (define (inner l res) 
-      (cond 
-        [(equal? (length l) 1) (append res l)]
-        [else (inner (rest l) (append res (list (first l)) (list v)))]))
+; (define (intersperse l v)
+;   (define (inner l res) 
+;       (cond 
+;         [(equal? (length l) 1) (append res l)]
+;         [else (inner (rest l) (append res (list (first l)) (list v)))]))
   
-  (cond 
-    [(<= (length l) 1) l]
-    [else (inner l (list))])
-)
+;   (cond 
+;     [(<= (length l) 1) l]
+;     [else (inner l (list))])
+; )
+
+(define (intersperse l v) (cond
+  [(<= (length l) 1) l]
+  [else (rest 
+          (foldl 
+          (lambda (x res) (append res (list v x))) 
+          (list) 
+          l))
+  ]
+))
 
 ;; Exercise 3.a: Generic find
 ;; Solution has 7 lines.
@@ -84,19 +94,14 @@
 ;; Exercise 5: Parse a quoted AST
 ;; Solution has 26 lines.
 (define (parse-ast node)
-  
-  (define (handle-list xs res) (
-    cond
-      [(not (list? xs)) (list (parse-ast xs))]
-      [(empty? xs) res]
-      [else (handle-list (rest xs) (append res (list (parse-ast (first xs)))))]
-  ))
+
+  (define (handle-list xs) (map parse-ast xs))
 
   (define (make-define-func node) (r:define
     (parse-ast (first (second node)))
     (r:lambda
-      (handle-list (rest (second node)) (list))
-      (handle-list (rest (rest node)) (list))
+      (handle-list (rest (second node)))
+      (handle-list (rest (rest node)) )
     )
   ))
 
@@ -106,13 +111,13 @@
   ))
 
   (define (make-lambda node) (r:lambda 
-    (handle-list (second node) (list))
-    (handle-list (rest (rest node)) (list))
+    (handle-list (second node))
+    (handle-list (rest (rest node)))
   ))
 
   (define (make-apply node) (r:apply
     (parse-ast (first node))
-    (handle-list (rest node) (list))
+    (handle-list (rest node))
   ))
 
   (define (make-number node) (r:number node))
@@ -127,5 +132,3 @@
     [(real? node) (make-number node)]
     [(lambda? node) (make-lambda node)]
     [else (make-apply node)]))
-
-(map (lambda (x) (parse-ast x)) (list 'a 'b 'c))
