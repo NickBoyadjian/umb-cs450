@@ -40,9 +40,7 @@
   [else (p:destruct (p:rest in) (append out (list (p:first in))))]))
 
 (define (p:append l1 l2) 
-  (define l:l1 (p:destruct l1 empty))
-  (define l:l2 (p:destruct l2 empty))
-  (define nl (append l:l1 l:l2))
+  (define nl (append (p:destruct l1 empty) (p:destruct l2 empty))) ; destruct and append the two lists
   (define (inner in) (
     cond 
       [(equal? (length in) 1) (delay (cons (first in) p:empty))]
@@ -78,21 +76,36 @@
 ;; Auxiliary functions
 (define (stream-get stream) (car stream))
 (define (stream-next stream) ((cdr stream)))
-(define (stream-foldl f a s) 'todo)
+(define (stream-foldl f a s)
+  (define next-a (f (stream-get s) a))
+  (f a (thunk (stream-foldl f next-a (stream-next s)))))
 
 ;; Exercise 4
-(define (stream-skip n s) 'todo)
+(define (stream-skip n s) 
+  (define (inner count s) (cond 
+    [(equal? count n) s]
+    [else (inner (+ count 1) (stream-next s))]))
+  (inner 0 s))
 
 ;; Exercise 5
+(struct r:bool (value) #:transparent)
+
+(define (and-n a b) (cond
+  [a b]
+  [else #f]))
+
+
 (define (r:eval-builtin sym)
   (cond [(equal? sym '+) +]
         [(equal? sym '*) *]
         [(equal? sym '-) -]
         [(equal? sym '/) /]
+        [(equal? sym 'and) and-n]
         [else #f]))
 
 (define (r:eval-exp exp)
   (cond
+    [(r:bool? exp) (r:bool-value exp)]
     ; 1. When evaluating a number, just return that number
     [(r:number? exp) (r:number-value exp)]
     ; 2. When evaluating an arithmetic symbol,
@@ -106,7 +119,3 @@
       (r:eval-exp (second (r:apply-args exp))))]
     [else (error "Unknown expression:" exp)]))
 
-
-(define r:bool #f)
-(define r:bool-value #f)
-(define r:bool? #f)
