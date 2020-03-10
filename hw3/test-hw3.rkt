@@ -96,8 +96,8 @@
 ;       (list (r:number 1) (r:number 2) (r:number 3))))
 ;   6)
 
-(check-equal?
-  (r:eval-exp
-    (r:apply (r:variable 'and)
-      (list (r:bool #t) (r:number 2) (r:number 3))))
-  3)
+; (check-equal?
+;   (r:eval-exp
+;     (r:apply (r:variable 'and)
+;       (list (r:bool #t) (r:number 2) (r:number 3))))
+;   3)

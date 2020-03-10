@@ -32,6 +32,13 @@
 (define (p:rest l) (cdr (force l)))
 
 
+;; 1.c
+;; it is possible, you just need to wrap the x value with a delay(promise).
+; (define (p:cons x l) (delay (cons x l)))
+; (define test (p:cons (delay (+ 1 2)) p:empty))
+; (check-equal? (force (p:first test)) 3)
+
+
 ;; Exercise 1.f
 
 ; turns a promise list into a regular list
@@ -71,6 +78,13 @@
            (bst->p:list (tree-left self))
            (delay (cons (tree-value self)
                  (bst->p:list (tree-right self)))))]))
+
+;; 2.b
+; lazy evauation out-performs eager evaluation when you have a situation where something 
+; that would normally be evaluate, can repeatedly be skipped. For example, in bst->p:list, 
+; you never have to actually evaluate the value of the tree, you just delay that,and move 
+; on to the next iteration of the function, where as the normal version of that function,
+; you evaluate at each step. 
 
 ;; Exercise 3
 ;; Auxiliary functions
