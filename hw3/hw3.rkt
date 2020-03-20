@@ -94,6 +94,7 @@
   (define next-a (f (stream-get s) a))
   (f a (thunk (stream-foldl f next-a (stream-next s)))))
 
+
 ;; Exercise 4
 (define (stream-skip n s) 
   (define (inner count s) (cond 
@@ -104,13 +105,12 @@
 ;; Exercise 5
 (struct r:bool (value) #:transparent)
 
-(define (and-n a b) (cond
-  [a b]
-  [else #f]))
+(define (and-n l) (foldl (lambda (x y) (and y x)) #t l))
+(define (plus l) (foldl + 0 l))
 
 
 (define (r:eval-builtin sym)
-  (cond [(equal? sym '+) +]
+  (cond [(equal? sym '+) plus]
         [(equal? sym '*) *]
         [(equal? sym '-) -]
         [(equal? sym '/) /]
@@ -118,6 +118,7 @@
         [else #f]))
 
 (define (r:eval-exp exp)
+  
   (cond
     [(r:bool? exp) (r:bool-value exp)]
     ; 1. When evaluating a number, just return that number
@@ -127,9 +128,12 @@
     [(r:variable? exp) (r:eval-builtin (r:variable-name exp))]
     ; 3. When evaluating a function call evaluate each expression and apply
     ;    the first expression to remaining ones
-    [(r:apply? exp)
-     ((r:eval-exp (r:apply-func exp))
-      (r:eval-exp (first (r:apply-args exp)))
-      (r:eval-exp (second (r:apply-args exp))))]
-    [else (error "Unknown expression:" exp)]))
+    
+    [(equal? (r:apply-func exp) (r:variable '+)) (plus (map (lambda (x) (r:eval-exp x)) (r:apply-args exp)))]
+    [(equal? (r:apply-func exp) (r:variable 'and)) (and-n (map (lambda (x) (r:eval-exp x)) (r:apply-args exp)))]
 
+    [(r:apply? exp)
+      ((r:eval-exp (r:apply-func exp))
+        (r:eval-exp (first (r:apply-args exp)))
+        (r:eval-exp (second (r:apply-args exp))))]
+    [else (error "Unknown expression:" exp)]))

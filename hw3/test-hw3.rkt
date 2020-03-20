@@ -65,6 +65,7 @@
 (check-equal? (r:eval-exp (r:bool #f)) #f)
 (check-equal? (r:eval-exp (r:variable '+)) +)
 ; ;; Exercise 5.c
+
 (check-equal? (r:eval-exp (r:variable 'and)) and-n)
 (check-true (r:eval-exp (r:apply (r:variable 'and) (list (r:bool #t) (r:bool #t)))))
 
@@ -73,7 +74,7 @@
 ;     (r:apply (r:variable 'and)
 ;       (list
 ;         (r:bool #t)
-;         (r:bool #t)
+;         (r:bool #f)
 ;         (r:apply (r:variable '+) (list (r:number 2) (r:number 3))))))
 ;   5)
 
@@ -90,14 +91,11 @@
 ; (check-true (r:eval-exp (r:apply (r:variable 'and) (list (r:bool #t) (r:bool #t)))))
 ; (check-false (r:eval-exp (r:apply (r:variable 'and) (list (r:bool #t) (r:bool #f)))))
 
-; (check-equal?
-;   (r:eval-exp
-;     (r:apply (r:variable '+)
-;       (list (r:number 1) (r:number 2) (r:number 3))))
-;   6)
+(check-equal?
+  (r:eval-exp
+    (r:apply (r:variable '+)
+      (list (r:number 1) (r:number 2) (r:number 3))))
+  6)
 
-; (check-equal?
-;   (r:eval-exp
-;     (r:apply (r:variable 'and)
-;       (list (r:bool #t) (r:number 2) (r:number 3))))
-;   3)
+
+
