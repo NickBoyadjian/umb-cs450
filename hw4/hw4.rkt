@@ -40,12 +40,15 @@
 
 (define (handle-apply-args args var val) (map (lambda (x) (cond [(equal? x var) val] [else x])) args))
 
-; (list (s:variable (quote y))
+(define (handle-lambda-body body var val params) 
+  (map 
+    (lambda (x) (cond [(and (equal? x var) (not (member x params))) val] [else x])) 
+    body))
 
 (define (s:subst exp var val)
 (cond
   [(s:apply? exp) (s:apply (handle-apply-func exp var val) (handle-apply-args (s:apply-args exp) var val))]
-  
+  [(s:lambda? exp) (s:lambda (s:lambda-params exp) (handle-lambda-body (s:lambda-body exp) var val (s:lambda-params exp)))]
   [(equal? exp var) val]
   [else exp]
 )
