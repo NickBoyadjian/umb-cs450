@@ -33,26 +33,16 @@
   (first (e:lambda-body lam)))
 
 ;; Exercise 1
-(define (handle-apply-func exp var val) (cond
-  [(equal? (s:apply-func exp) var) val]
-  [else (s:apply-func exp)]
-))
-
-(define (handle-apply-args args var val) (map (lambda (x) (cond [(equal? x var) val] [else x])) args))
-
-(define (handle-lambda-body body var val params) 
-  (map 
-    (lambda (x) (cond [(and (equal? x var) (not (member x params))) val] [else x])) 
-    body))
-
-(define (s:subst exp var val)
-(cond
-  [(s:apply? exp) (s:apply (handle-apply-func exp var val) (handle-apply-args (s:apply-args exp) var val))]
-  [(s:lambda? exp) (s:lambda (s:lambda-params exp) (handle-lambda-body (s:lambda-body exp) var val (s:lambda-params exp)))]
-  [(equal? exp var) val]
-  [else exp]
-)
-)
+(define (s:subst exp var val) (cond
+  [(s:number? exp) exp]
+  [(s:variable? exp) (cond [(equal? exp var) val] [else exp])]
+  [(s:apply? exp) (s:apply (s:subst (s:apply-func exp) var val) (list (s:subst (s:apply-arg1 exp) var val)))]
+  [(s:lambda? exp) 
+    (s:lambda 
+      (s:lambda-params exp) 
+      (map 
+        (lambda (x) (print x) (cond [(and (equal? x var) (not (member x (s:lambda-params exp)))) val] [else x])) 
+        (s:lambda-body exp)))]))
 
 ;; Exercise 2var
 (define (s:eval subst exp) 'todo)

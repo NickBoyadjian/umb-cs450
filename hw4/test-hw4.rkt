@@ -28,17 +28,20 @@
     (unless (equal? given expected)
       (fail))))
 
-(check-subst? 'x (cons 'x 1) 1)
-(check-subst? 'y (cons 'x 1) 'y)
-(check-subst? 10 (cons 'x 1) 10)
-(check-subst? '(x y) (cons 'x 'z) '(z y))
-(check-subst? '(x y) (cons 'y 'z) '(x z))
-(check-subst? '(x y) (cons 'z 10) '(x y))
-(check-subst? '(lambda (x) x) (cons 'x 10) '(lambda (x) x))
-(check-subst? '(lambda (y) x) (cons 'x 10) '(lambda (y) 10))
-(check-subst? '(lambda (x) y) (cons 'z 10) '(lambda (x) y))
-(check-subst? '(lambda (y) (lambda (x) y)) (cons 'y '1) '(lambda (y) (lambda (x) y)))
-(check-subst? '(lambda (x) y) (cons 'y 10) '(lambda (x) 10))
+; (check-subst? 'x (cons 'x 1) 1)
+; (check-subst? 'y (cons 'x 1) 'y)
+; (check-subst? 10 (cons 'x 1) 10)
+; (check-subst? '(x y) (cons 'x 'z) '(z y))
+; (check-subst? '(x y) (cons 'y 'z) '(x z))
+; (check-subst? '(x y) (cons 'z 10) '(x y))
+; (check-subst? '(lambda (x) x) (cons 'x 10) '(lambda (x) x))
+; (check-subst? '(lambda (y) x) (cons 'x 10) '(lambda (y) 10))
+; (check-subst? '(lambda (x) y) (cons 'z 10) '(lambda (x) y))
+; (check-subst? '(lambda (y) (lambda (x) y)) (cons 'y '1) '(lambda (y) (lambda (x) y)))
+
+(check-subst? '(lambda (y) (lambda (x) z)) (cons 'z 1) '(lambda (y) (lambda (x) 1)))
+
+; (check-subst? '(lambda (x) y) (cons 'y 10) '(lambda (x) 10))
 
 ; ;; A function to help testing the evaluation
 ; (define-check (check-s:eval? exp expected)
