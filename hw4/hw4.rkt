@@ -32,32 +32,68 @@
 (define (e:lambda-body1 lam)
   (first (e:lambda-body lam)))
 
+
 ;; Exercise 1
 (define (s:subst exp var val) (cond
   [(s:number? exp) exp]
-  [(s:variable? exp) (cond [(equal? exp var) val] [else exp])]
-  [(s:apply? exp) (s:apply (s:subst (s:apply-func exp) var val) (list (s:subst (s:apply-arg1 exp) var val)))]
-  [(s:lambda? exp) 
-    (s:lambda 
-      (s:lambda-params exp) 
-      (map 
-        (lambda (x) (print x) (cond [(and (equal? x var) (not (member x (s:lambda-params exp)))) val] [else x])) 
-        (s:lambda-body exp)))]))
+  [(s:variable? exp) (cond 
+    [(equal? exp var) val] 
+    [else exp])]
+  [(s:lambda? exp) (cond
+    [(equal? (s:lambda-param1 exp) var) exp]
+    [else (s:lambda (list (s:lambda-param1 exp)) (list (s:subst (s:lambda-body1 exp) var val)))])]
+  [(s:apply? exp) 
+    (s:apply 
+      (s:subst (s:apply-func exp) var val) 
+      (list (s:subst (s:apply-arg1 exp) var val)))]))
+
 
 ;; Exercise 2var
-(define (s:eval subst exp) 'todo)
+
+(define (s:eval subst exp) (cond
+  [(s:value? exp) exp]
+  [(s:apply? exp)
+      (define ef (s:eval subst (s:apply-func exp)))
+      (s:eval subst (subst
+        (s:lambda-body1 ef) 
+        (s:lambda-param1 ef) 
+        (s:eval subst (s:apply-arg1 exp))))
+  ]))
+
+
 
 ;; Exercise 3
-(define (e:eval env exp) 'todo)
+(define (e:eval env exp) (cond
+  [(e:value? exp) exp]
+  [(e:variable? exp) (hash-ref env exp)]
+  [(e:lambda? exp) (e:closure env exp)]
+  [(e:apply? exp)
+    (define ef (e:eval env (e:apply-func exp)))
+    (define ea (e:eval env (e:apply-arg1 exp)))
+
+    (println ef)
+
+    (e:eval 
+      (hash-set env (e:lambda-param1 (e:apply-func exp)) ea) 
+      (e:apply-func exp))
+  ]
+))
+
 
 ;; Exercise 4 (Manually graded)
 #|
-PLEASE REPLACE THIS TEXT BY YOU ANSWER.
-YOU MAY USE MULTIPLE LINES.
+Using environments is better when you want to have multiple variables or arguments
+to your functions. It would make more sense not to use environments if you are 
+working only with functions that take one argument (where you would using currying instead),
+because then you wouldn't really need to bother keeping all your data in a hash table.
 |#
 
 ;; Exercise 5 (Manually graded)
 #|
-PLEASE REPLACE THIS TEXT BY YOU ANSWER
-YOU MAY USE MULTIPLE LINES.
+The first major benefit is that it is a lot easier to read.
+You don't have to bother looking at code and can instead 
+understand the way it works in a more mathematical notation.
+The other benefit to this is that you can leave the actual
+implementation up to optimization and not focus on that when
+designing the specification.
 |#

@@ -28,50 +28,64 @@
     (unless (equal? given expected)
       (fail))))
 
-; (check-subst? 'x (cons 'x 1) 1)
-; (check-subst? 'y (cons 'x 1) 'y)
-; (check-subst? 10 (cons 'x 1) 10)
-; (check-subst? '(x y) (cons 'x 'z) '(z y))
-; (check-subst? '(x y) (cons 'y 'z) '(x z))
-; (check-subst? '(x y) (cons 'z 10) '(x y))
-; (check-subst? '(lambda (x) x) (cons 'x 10) '(lambda (x) x))
-; (check-subst? '(lambda (y) x) (cons 'x 10) '(lambda (y) 10))
-; (check-subst? '(lambda (x) y) (cons 'z 10) '(lambda (x) y))
-; (check-subst? '(lambda (y) (lambda (x) y)) (cons 'y '1) '(lambda (y) (lambda (x) y)))
-
+(check-subst? 'x (cons 'x 1) 1)
+(check-subst? 'y (cons 'x 1) 'y)
+(check-subst? 10 (cons 'x 1) 10)
+(check-subst? '(x y) (cons 'x 'z) '(z y))
+(check-subst? '(x y) (cons 'y 'z) '(x z))
+(check-subst? '(x y) (cons 'z 10) '(x y))
+(check-subst? '(lambda (x) x) (cons 'x 10) '(lambda (x) x))
+(check-subst? '(lambda (y) x) (cons 'x 10) '(lambda (y) 10))
+(check-subst? '(lambda (x) y) (cons 'z 10) '(lambda (x) y))
+(check-subst? '(lambda (y) (lambda (x) y)) (cons 'y '1) '(lambda (y) (lambda (x) y)))
 (check-subst? '(lambda (y) (lambda (x) z)) (cons 'z 1) '(lambda (y) (lambda (x) 1)))
+(check-subst? '(lambda (x) y) (cons 'y 10) '(lambda (x) 10))
+(check-subst? '(lambda (x) y) (cons 'y 1) '(lambda (x) 1))
+(check-subst? '(lambda (y) (lambda (y) x)) (cons 'x 10) '(lambda (y) (lambda (y) 10)))
+(check-subst? '((lambda (y) (lambda (y) x)) 10) (cons 'x 10) '((lambda (y) (lambda (y) 10)) 10))
 
-; (check-subst? '(lambda (x) y) (cons 'y 10) '(lambda (x) 10))
+;; A function to help testing the evaluation
 
-; ;; A function to help testing the evaluation
-; (define-check (check-s:eval? exp expected)
-;   (define given (s:quote (s:eval s:subst (s:parse-ast exp))))
-;   (with-check-info (['expected expected]
-;                     ['given given])
-;     (unless (equal? given expected)
-;       (fail))))
-; (check-s:eval? '((lambda (y) (lambda (x) y)) 1) '(lambda (x) 1))
-; (check-s:eval? '(lambda (x) y) '(lambda (x) y))
-; (check-s:eval? '((lambda (x) x) 10) 10)
-; (check-s:eval? '(lambda (x) y) '(lambda (x) y))
+;; ==================================================================================================
 
-; (define-check (check-e:eval? env exp expected)
-;   (define given (e:quote (e:eval (e:parse-env env) (e:parse-ast exp))))
-;   (with-check-info (['expected expected]
-;                     ['given given]
-;                     ['environ env]
-;                     ['params null])
-;     (unless (equal? given expected)
-;       (fail))))
-; (check-e:eval? '[(x . 1)] 'x 1)
-; (check-e:eval? '[(x . 2)] 20 20)
-; (check-e:eval? '[] '(lambda (x) x) '(closure [] (lambda (x) x)))
-; (check-e:eval? '[(y . 3)] '(lambda (x) x) '(closure [(y . 3)] (lambda (x) x)))
-; (check-e:eval? '{(y . 3)} '(lambda (x) x) '(closure [(y . 3)] (lambda (x) x)))
-; (check-e:eval? '{} '((lambda (x) x) 3)  3)
-; (check-e:eval? '{} '((lambda (x) (lambda (y) x)) 3)  '(closure {[x . 3]} (lambda (y) x)))
-; (check-s:eval? '((lambda (f) (f (f (f (f (f (f (f 10)))))))) (lambda (x) x)) 10)
-; (check-e:eval? '[] '((lambda (f) (f (f (f (f (f (f (f 10)))))))) (lambda (x) x)) 10)
+(define-check (check-s:eval? exp expected)
+  (define given (s:quote (s:eval s:subst (s:parse-ast exp))))
+  (with-check-info (['expected expected]
+                    ['given given])
+    (unless (equal? given expected)
+      (fail))))
+
+
+(check-s:eval? '(lambda (x) y) '(lambda (x) y))
+(check-s:eval? 10 10)
+
+(check-s:eval? '((lambda (x) x) 10) 10)
+(check-s:eval? '((lambda (y) (lambda (x) y)) 1) '(lambda (x) 1))
+
+(check-s:eval? '(((lambda (y) (lambda (x) x)) 66) 10) 10)
+
+;; ==================================================================================================
+
+(define-check (check-e:eval? env exp expected)
+  (define given (e:quote (e:eval (e:parse-env env) (e:parse-ast exp))))
+  (with-check-info (['expected expected]
+                    ['given given]
+                    ['environ env]
+                    ['params null])
+    (unless (equal? given expected)
+      (fail))))
+
+;(check-e:eval? '[(x . 1)] 'x 1)
+;(check-e:eval? '[(x . 2)] 20 20)
+;(check-e:eval? '[] '(lambda (x) x) '(closure [] (lambda (x) x)))
+;(check-e:eval? '[(y . 3)] '(lambda (x) x) '(closure [(y . 3)] (lambda (x) x)))
+;(check-e:eval? '{(y . 3)} '(lambda (x) x) '(closure [(y . 3)] (lambda (x) x)))
+
+
+(check-e:eval? '{} '((lambda (x) x) 3) 3)
+;(check-e:eval? '{} '((lambda (x) (lambda (y) x)) 3)  '(closure {[x . 3]} (lambda (y) x)))
+(check-s:eval? '((lambda (f) (f (f (f (f (f (f (f 10)))))))) (lambda (x) x)) 10)
+;(check-e:eval? '[] '((lambda (f) (f (f (f (f (f (f (f 10)))))))) (lambda (x) x)) 10)
 
 ; (define ID '(lambda (x) x))
 ; (define (apply-n f n)
