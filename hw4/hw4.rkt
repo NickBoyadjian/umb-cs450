@@ -54,10 +54,11 @@
   [(s:value? exp) exp]
   [(s:apply? exp)
       (define ef (s:eval subst (s:apply-func exp)))
+      (define va (s:eval subst (s:apply-arg1 exp)))
       (s:eval subst (subst
         (s:lambda-body1 ef) 
         (s:lambda-param1 ef) 
-        (s:eval subst (s:apply-arg1 exp))))
+        va))
   ]))
 
 
@@ -67,17 +68,16 @@
   [(e:value? exp) exp]
   [(e:variable? exp) (hash-ref env exp)]
   [(e:lambda? exp) (e:closure env exp)]
-  [(e:apply? exp)
-    (define ef (e:eval env (e:apply-func exp)))
-    (define ea (e:eval env (e:apply-arg1 exp)))
-
-    (println ef)
-
-    (e:eval 
-      (hash-set env (e:lambda-param1 (e:apply-func exp)) ea) 
-      (e:apply-func exp))
+  [(e:apply? exp)    
+    (define clos (e:eval env (e:apply-func exp)))
+    (define Eb (e:closure-env clos))
+    (define eb (e:lambda-body1 (e:closure-decl clos)))
+    (define x (e:lambda-param1 (e:closure-decl clos)))
+    (define va (e:eval env (e:apply-arg1 exp)))
+    (e:eval (hash-set Eb x va) eb)
   ]
 ))
+
 
 
 ;; Exercise 4 (Manually graded)
