@@ -25,6 +25,7 @@
 ;; Exercise 1
 (define/contract (d:eval-exp mem env exp)
   (-> mem? handle? d:expression? eff?)
+  (println exp)
   (define frame (heap-get mem env))
   (define local-vars (frame-locals frame))
   (cond
@@ -32,23 +33,22 @@
     [(d:variable? exp) (eff mem (environ-get mem env exp))]
     [(d:lambda? exp) (eff mem (d:closure env exp))]
     [(d:apply? exp) 
-      (define lambda-eff (d:eval-exp mem env (d:apply-func exp)))
-      (define lambda-eff-env (d:closure-env (eff-result lambda-eff)))
-      (define lambda-eff-state (eff-state lambda-eff))
-      (define lambda-eff-lambda (d:closure-decl (eff-result lambda-eff)))
-      (define x (d:lambda-param1 lambda-eff-lambda))
-      (define tb (d:lambda-body lambda-eff-lambda))
+      (define closure (d:eval-exp mem env (d:apply-func exp)))
+      (define closure-env (d:closure-env (eff-result closure)))
+      (define closure-state (eff-state closure))
+      (define closure-lambda (d:closure-decl (eff-result closure)))
+      (define x (d:lambda-param1 closure-lambda))
+      (define tb (d:lambda-body closure-lambda))
 
-      (define va* (d:eval-exp lambda-eff-state env (d:apply-arg1 exp)))
+      (define va* (d:eval-exp closure-state env (d:apply-arg1 exp)))
       (define va (eff-result va*))
       (define Ef (eff-state va*))
       
-      (define Eb* (environ-push Ef lambda-eff-env x va))      
+      (define Eb* (environ-push Ef closure-env x va))      
       (define Eb (eff-state Eb*))
       (define new-env (eff-result Eb*))
-      
-      
-      (d:eval-term Eb new-env tb)
+
+      (d:eval-exp Eb new-env tb)
     ]
   ))
 
@@ -56,18 +56,22 @@
 ;; Exercise 2
 (define/contract (d:eval-term mem env term)
   (-> mem? handle? d:term? eff?)
+  (print "term")
+  (println term)
   (cond
     [(d:define? term) 
       (define v (eff-result (d:eval-term mem env (d:define-body term))))
+
       (define new-mem (eff-state (d:eval-term mem env (d:define-body term))))
       (define x (d:define-var term))
+      (println x)
       (define E (environ-put new-mem env x v))
       (eff E (d:void))
     ]
     [(d:seq? term)
       (define v1-state (eff-state (d:eval-term mem env (d:seq-fst term))))
-      (define v2 (d:seq-snd term))
-      (d:eval-term v1-state env (d:seq-snd term))
+      (define v2 (d:seq-snd term)) 
+      (d:eval-term v1-state env v2)
     ]
     [else (d:eval-exp mem env term)]
   ))

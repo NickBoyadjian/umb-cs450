@@ -36,113 +36,137 @@
 ;; End of testing API
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; ; Tests if a given expression evaluates down to the given value
-(eval-exp? '((lambda (x) x) 3)  3)
-(eval-exp? '(((lambda (x) (lambda (y)  x)) 1) 3) 1)
-(eval-exp? '((((lambda (x) (lambda (y) (lambda (z) x))) 1) 2) 3) 1)
+; ; ; Tests if a given expression evaluates down to the given value
+; (eval-exp? '((lambda (x) x) 3)  3)
+; (eval-exp? '(((lambda (x) (lambda (y)  x)) 1) 3) 1)
+; (eval-exp? '((((lambda (x) (lambda (y) (lambda (z) x))) 1) 2) 3) 1)
 
-; ; Tests if a given program evaluates down to a given value
+; ; ; Tests if a given program evaluates down to a given value
 
-(eval-term?
-  '[
-    (define b (lambda (x) a))
-    (define a 20)
-    (b 1)]
-  20)
-(eval-term?
-  '[
-    (define a 20)
-    (define b (lambda (x) a))
-    (b 1)]
-  20)
+; (eval-term?
+;   '[
+;     (define b (lambda (x) a))
+;     (define a 20)
+;     (b 1)]
+;   20)
+; (eval-term?
+;   '[
+;     (define a 20)
+;     (define b (lambda (x) a))
+;     (b 1)]
+;   20)
 
-; Extended tests where we also describe the input and output memory
+; ; Extended tests where we also describe the input and output memory
 
-(eval-exp*?
-  ; Input memory
-  '[(E0 . [(x . 1)])]
-  ; Environment
-  'E0
-  ; Input expression
-  'x
-  ; Output value
-  1
-  ; Output memory
-  '[(E0 . [(x . 1)])])
+; (eval-exp*?
+;   ; Input memory
+;   '[(E0 . [(x . 1)])]
+;   ; Environment
+;   'E0
+;   ; Input expression
+;   'x
+;   ; Output value
+;   1
+;   ; Output memory
+;   '[(E0 . [(x . 1)])])
 
-(eval-exp*?
-  ; Input memory
-  '[(E0 . [(x . 2)])]
-  ; Environment
-  'E0
-  ; Input expression
-  20
-  ; Output value
-  20
-  ; Output memory
-  '[(E0 . [(x . 2)])])
+; (eval-exp*?
+;   ; Input memory
+;   '[(E0 . [(x . 2)])]
+;   ; Environment
+;   'E0
+;   ; Input expression
+;   20
+;   ; Output value
+;   20
+;   ; Output memory
+;   '[(E0 . [(x . 2)])])
 
-(eval-exp*?
-  ; Input memory
-  '[(E0 . [(x . 2)])]
-  ; Environment
-  'E0
-  ; Input expression
-  '(lambda (x) x)
-  ; Output value
-  '(closure E0 (lambda (x) x))
-  ; Output memory
-  '[(E0 . [(x . 2)])])
+; (eval-exp*?
+;   ; Input memory
+;   '[(E0 . [(x . 2)])]
+;   ; Environment
+;   'E0
+;   ; Input expression
+;   '(lambda (x) x)
+;   ; Output value
+;   '(closure E0 (lambda (x) x))
+;   ; Output memory
+;   '[(E0 . [(x . 2)])])
 
-; Extended tests where we also describe the input and output memory
+; ; Extended tests where we also describe the input and output memory
 
-(eval-term*?
-  ; Input memory
-  '[(E0 . [(x . 2)])]
-  ; Environment
-  'E0
-  ; Input term
-  '[(define y 20)]
-  ; Output value
-  '(void)
-  ; Output memory
-  '[(E0 . [(x . 2) (y . 20)])])
-
-
-(eval-term?
-'[
-  (define a (lambda (c) ((((lambda (x) (lambda (y) (lambda (z)  c))) c) 2) 3) ))
-  (define c 20)
-  (a (a (a (a 50))))
-]
-50)
-
-(eval-term*?
-  ; Input memory
-  '[(E0 . [])]
-  ; Environment
-  'E0
-  ; Input term
-  '[(define x 2) (define y 20) x]
-  ; Output value
-  2
-  ; Output memory
-  '[(E0 . [(x . 2) (y . 20)])])
+; (eval-term*?
+;   ; Input memory
+;   '[(E0 . [(x . 2)])]
+;   ; Environment
+;   'E0
+;   ; Input term
+;   '[(define y 20)]
+;   ; Output value
+;   '(void)
+;   ; Output memory
+;   '[(E0 . [(x . 2) (y . 20)])])
 
 
-(eval-term*?
-; Input memory
-'[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2)]
-; Environment
-'E0
-; Input term
-'[((closure E3 (lambda (z) (define x 2) (define y 20) x)) 3)]
-; Output value
-2
-; Output memory
-'((E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E3 (x . 2) (y . 20) (z . 3))))
+; (eval-term?
+; '[
+;   (define a (lambda (c) ((((lambda (x) (lambda (y) (lambda (z)  c))) c) 2) 3) ))
+;   (define c 20)
+;   (a (a (a (a 50))))
+; ]
+; 50)
+
+; (eval-term*?
+;   ; Input memory
+;   '[(E0 . [])]
+;   ; Environment
+;   'E0
+;   ; Input term
+;   '[(define x 2) (define y 20) x]
+;   ; Output value
+;   2
+;   ; Output memory
+;   '[(E0 . [(x . 2) (y . 20)])])
 
 
+; (eval-term*?
+; ; Input memory
+; '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2)]
+; ; Environment
+; 'E0
+; ; Input term
+; '[((closure E3 (lambda (z) (define x 2) (define y 20) x)) 3)]
+; ; Output value
+; 2
+; ; Output memory
+; '((E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E3 (x . 2) (y . 20) (z . 3))))
+
+
+
+; (eval-term*?
+;   ; Input memory
+;   '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2)]
+;   ; Environment
+;   'E0
+;   ; Input term
+;   '[((closure E3 (lambda (z) x)) 3)]
+;   ; Output value
+;   10
+; ;   ; Output memory
+;   '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E3 (z . 3))])
+
+; (eval-term*?
+;   ; Input memory
+;   '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2)]
+;   ; Environment
+;   'E0
+;   ; Input term
+;   '[((closure E1 (lambda (z) (define p 2) (define z 20) x)) 10)]
+;   ; Output value
+;   10
+;   ; Output memory
+;   '((E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E1 (p . 2) (z . 20))))
 
 (eval-term*?
   ; Input memory
@@ -153,17 +177,5 @@
   '[((closure E3 (lambda (z) x)) 3)]
   ; Output value
   10
-;   ; Output memory
-  '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E3 (z . 3))])
-
-(eval-term*?
-  ; Input memory
-  '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2)]
-  ; Environment
-  'E0
-  ; Input term
-  '[((closure E1 (lambda (z) (define p 2) (define z 20) x)) 10)]
-  ; Output value
-  10
   ; Output memory
-  '((E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E1 (p . 2) (z . 20))))
+  '[(E0 (x . 10)) (E1 E0) (E2 E1) (E3 E2) (E4 E3 (z . 3))])
