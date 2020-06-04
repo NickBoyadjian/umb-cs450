@@ -40,6 +40,9 @@
   (-> (-> any/c set?) heap? handle? set?)
   (define frm  (heap-get mem env))
   (define parent (frame-parent frm))
+
+  (println (environ-get mem env (d:variable 'x)))
+
   
   (cond
     [(or (not parent) (equal? parent env)) (contained frm)]
